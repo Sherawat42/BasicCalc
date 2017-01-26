@@ -13,7 +13,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button calculate;
     TextView textView;
     TextView output;
+    String lastOperation = "+";
+    long lastValue=0;
     long result=0;
+    long resultTemp=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,26 +51,67 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         int id = view.getId();
+        String expression = (String)textView.getText();
         if(id == add.getId()){
-            if(((String)textView.getText()).length() > 0){
-                result+=Integer.parseInt((String)textView.getText());
-                output.setText("="+result);
-                textView.setText("");
+            if(expression.length()==0){
+                lastOperation="+";
+                textView.setText((textView.getText())+" ");
+            }else{
+                if(Character.isDigit(expression.charAt(expression.length()-1))){
+                    if(((String)textView.getText()).length() > 0){
+                        textView.setText((textView.getText())+"+");
+                        lastOperation="+";
+                        updateResult();
+                    }
+                }
             }
         }else if(id == minus.getId()){
-            if(((String)textView.getText()).length() > 0){
-                result-=Integer.parseInt((String)textView.getText());
-                output.setText("="+result);
-                textView.setText("");
+            if(expression.length()==0){
+                lastOperation="-";
+                textView.setText((textView.getText())+"-");
+            }else{
+                if(Character.isDigit(expression.charAt(expression.length()-1))){
+                    if(((String)textView.getText()).length() > 0){
+                        lastOperation="-";
+                        textView.setText((textView.getText())+"-");
+                        updateResult();
+                    }
+                }
             }
         }else if(id == calculate.getId()){
-
+            if(Character.isDigit(expression.charAt(expression.length()-1))){
+                lastOperation="+";
+                textView.setText("");
+                updateResult();
+                output.setTextSize(70);
+            }
         }else{
             for(int i=0;i<10;i++){
                 if(id == nums[i].getId()){
                     textView.setText((String)textView.getText()+i);
+                    output.setText("="+evaluateResultTemp());
                 }
             }
         }
+    }
+
+    private void updateResult() {
+        result=resultTemp;
+    }
+
+    private String evaluateResultTemp() {
+        resultTemp=result;
+        String expression = (String)textView.getText();
+        int curNum=0;
+        for(int i=expression.length()-1;i>=0 && Character.isDigit(expression.charAt(i));i--){
+            curNum = (int) (curNum+Character.getNumericValue(expression.charAt(i))*Math.pow(10,expression.length()-i-1));
+            System.out.println(curNum);
+        }
+        if (lastOperation=="+"){
+            resultTemp+=curNum;
+        }else if(lastOperation=="-"){
+            resultTemp-=curNum;
+        }
+        return String.valueOf(resultTemp);
     }
 }
